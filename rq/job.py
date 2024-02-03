@@ -1332,7 +1332,13 @@ class Job:
         """
         result = self.func(*self.args, **self.kwargs)
         if asyncio.iscoroutine(result):
-            loop = asyncio.new_event_loop()
+            try:
+                logger.info("GETTING NEW LOOP")
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                logger.info("RUNTIME ERROR. CREATING NEW LOOP")
+                loop = asyncio.new_event_loop()
+
             coro_result = loop.run_until_complete(result)
             return coro_result
         return result
